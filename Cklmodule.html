@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanz Basuri</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  height:100vh;
+  background-image:
+    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
+    url("https://raw.githubusercontent.com/Sani-TKJ/Sani/ae82e59ad8dd514d072a84e210edde187cd84651/IMG_20241217_165655.png");
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+}
+
+/* OPEN BUTTON */
+#openBtn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  padding:14px 18px;
+  border:none;
+  border-radius:14px;
+  background:#ffd200;
+  font-weight:bold;
+  z-index:999;
+}
+
+/* PANEL */
+.card{
+  background:rgba(0,0,0,.65);
+  width:90%;
+  max-width:430px;
+  padding:18px;
+  border-radius:16px;
+  max-height:90vh;
+  overflow-y:auto;
+  box-shadow:0 10px 25px rgba(0,0,0,.6);
+  transition:.35s ease;
+}
+
+/* CLOSED */
+.card.closed{
+  transform:translateY(120%);
+  opacity:0;
+  pointer-events:none;
+}
+
+/* CLOSE BTN */
+.closeBtn{
+  position:absolute;
+  top:12px;
+  right:12px;
+  border:none;
+  background:#ff4b2b;
+  color:white;
+  border-radius:50%;
+  width:32px;
+  height:32px;
+  font-weight:bold;
+}
+
+h1{text-align:center;margin:0;}
+p{text-align:center;font-size:14px;opacity:.8}
+
+/* SEARCH */
+.search input{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  margin:10px 0;
+}
+
+/* TAB */
+.tabs{
+  display:flex;
+  gap:6px;
+  margin-bottom:10px;
+}
+.tab{
+  flex:1;
+  padding:8px;
+  background:#333;
+  border-radius:8px;
+  text-align:center;
+  font-weight:bold;
+}
+.tab.active{
+  background:#ffd200;
+  color:#222;
+}
+
+/* GROUP */
+.group{display:none;}
+.group.active{display:block;}
+.group h3{color:#ffd200}
+
+/* BUTTONS */
+.buttons{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+button{
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  background:linear-gradient(135deg,#f7971e,#ffd200);
+}
+button.playing{
+  background:linear-gradient(135deg,#1db954,#1ed760);
+}
+
+/* CONTROL */
+.controls{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+  margin-top:12px;
+}
+.status{text-align:center;font-size:13px;margin-top:8px}
+.stop{
+  width:100%;
+  margin-top:10px;
+  background:linear-gradient(135deg,#ff416c,#ff4b2b);
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<!-- OPEN BUTTON -->
+<button id="openBtn" onclick="togglePanel()">☰ BASURI</button>
+
+<!-- PANEL -->
+<div class="card closed">
+  <button class="closeBtn" onclick="togglePanel()">✖</button>
+
+  <h1>BASURI V1 SANZ</h1>
+  <p>100 Basuri • Search • Scroll</p>
+
+  <div class="search">
+    <input type="text" id="search" placeholder="Cari basuri..." onkeyup="searchBasuri()">
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="content"></div>
+
+  <div class="controls">
+    <button onclick="volUp()">VOL +</button>
+    <button onclick="volDown()">VOL −</button>
+    <button onclick="speedDown()">SLOW</button>
+    <button onclick="speedUp()">FAST</button>
+  </div>
+
+  <div class="status" id="status">Volume: 100% | Speed: 1.0x</div>
+  <button class="stop" onclick="stopSound()">⏹ STOP</button>
+</div>
+
+<script>
+let audio=new Audio();
+let speed=1.0;
+let currentBtn=null;
+const card=document.querySelector(".card");
+
+/* TOGGLE */
+function togglePanel(){
+  card.classList.toggle("closed");
+}
+
+/* DATA */
+const sounds=[];
+for(let i=1;i<=100;i++){
+  sounds[1]  = "https://raw.githubusercontent.com/Sani-TKJ/Sani/8d4e13927f7f4a22bac6229f7ff50ca068b65f0d/Al%20faizi.mp3";
+  sounds[2]  = "https://raw.githubusercontent.com/Sani-TKJ/Sani/8d4e13927f7f4a22bac6229f7ff50ca068b65f0d/sekar%20(mp3cut.net).mp3";
+  sounds[3]  = "https://raw.githubusercontent.com/Sani-TKJ/Sani/9b2a5633e79e8569bd398ddbf0b16ab6a4cb2acc/Nada%2003.mp3";
+  sounds[4]  = "https://raw.githubusercontent.com/Sani-TKJ/Sani/e6bd103e28177f2fbe631bbef0d17ac495afe6c7/nada%2004.mp3";
+  sounds[5]  = "https://raw.githubusercontent.com/Sani-TKJ/Sani/8d4e13927f7f4a22bac6229f7ff50ca068b65f0d/nada%2005.mp3";
+  sounds[6]  = "link_basuri6.mp3";
+  sounds[7]  = "link_basuri7.mp3";
+  sounds[8]  = "link_basuri8.mp3";
+  sounds[9]  = "link_basuri9.mp3";
+  sounds[10] = "link_basuri10.mp3";}
+
+/* GENERATE 5 GROUP */
+const tabs=document.getElementById("tabs");
+const content=document.getElementById("content");
+
+for(let g=0;g<5;g++){
+  let tab=document.createElement("div");
+  tab.className="tab"+(g===0?" active":"");
+  tab.innerText="Grup "+(g+1);
+  tab.onclick=()=>openTab(g);
+  tabs.appendChild(tab);
+
+  let group=document.createElement("div");
+  group.className="group"+(g===0?" active":"");
+
+  let h=document.createElement("h3");
+  h.innerText=`Basuri ${g*20+1} – ${g*20+20}`;
+  group.appendChild(h);
+
+  let grid=document.createElement("div");
+  grid.className="buttons";
+
+  for(let i=1;i<=20;i++){
+    let n=g*20+i;
+    let b=document.createElement("button");
+    b.innerText="Basuri "+n;
+    b.dataset.name="basuri "+n;
+    b.onclick=()=>play(b,n);
+    grid.appendChild(b);
+  }
+
+  group.appendChild(grid);
+  content.appendChild(group);
+}
+
+/* FUNCTIONS */
+function play(btn,n){
+  if(currentBtn) currentBtn.classList.remove("playing");
+  currentBtn=btn;
+  btn.classList.add("playing");
+  audio.src=sounds[n];
+  audio.playbackRate=speed;
+  audio.play();
+}
+function stopSound(){audio.pause();}
+
+function volUp(){
+  audio.volume = Math.min(1, audio.volume + 0.1);
+  updateStatus();
+}
+function volDown(){
+  audio.volume = Math.max(0, audio.volume - 0.1);
+  updateStatus();
+}
+
+function speedUp(){
+  speed = Math.min(2, speed + 0.1);
+  audio.playbackRate = speed;
+  updateStatus();
+}
+function speedDown(){
+  speed = Math.max(0.5, speed - 0.1);
+  audio.playbackRate = speed;
+  updateStatus();
+}
+function updateStatus(){
+  document.getElementById("status").innerText = 
+   `Volume: ${Math.round(audio.volume*100)}% | Speed: ${speed.toFixed(1)}x`;
+}
+function openTab(i){
+  document.querySelectorAll(".tab").forEach((t,x)=>t.classList.toggle("active",x===i));
+  document.querySelectorAll(".group").forEach((g,x)=>g.classList.toggle("active",x===i));
+}
+function searchBasuri(){
+  let q=search.value.toLowerCase();
+  document.querySelectorAll(".buttons button").forEach(b=>{
+    b.style.display=b.dataset.name.includes(q)?"block":"none";
+  });
+}
+update();
+</script>
+
+</body>
+</html>
